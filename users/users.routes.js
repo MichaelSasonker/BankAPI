@@ -75,6 +75,45 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
         }
     }
 })
+.put('/update-credit', (req, res) => {
+    console.log(req.body);
+    const { passportId, amount } = req.body;
+
+    let result = usersJSON.users.filter( user => user.passportId == passportId);
+
+    if (!passportId) {
+        return res.status(200).json({ error: "Please enter passport id!" });
+    }
+    else if (result.length === 0) {
+        return res.status(200).json({ error: "No such passport id!" });
+    }
+    else if (isPositiveInt(amount) === false) {
+        return res.status(200).json({ error: "This amount of credit is not valid!" });
+    }
+    else {
+        console.log(result);
+        if (!result[0].isActive) {
+            return res.status(200).json({ error: "This user is NOT active!" });
+        }
+        else {
+            const userObj = {
+                passportId,
+                cash: result[0].cash,
+                credit: amount,
+                isActive: result[0].isActive
+            }
+    
+            let tempJSON = usersJSON;
+            let indxRes = tempJSON.users.findIndex((obj) => obj.passportId == passportId);
+            // console.log(indxRes);
+            tempJSON.users.splice(indxRes, 1);
+            tempJSON.users.push(userObj);
+            console.log(tempJSON);
+            fs.writeFileSync('./users/users.json', JSON.stringify(tempJSON));
+            res.status(201).json({ message: "Action performed successfully!" });
+        }
+    }
+})
 
 
 module.exports = router;
