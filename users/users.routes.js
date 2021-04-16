@@ -52,7 +52,6 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
         return res.status(200).json({ error: "This amount of cash is not valid!" });
     }
     else {
-        console.log(result);
         if (!result[0].isActive) {
             return res.status(200).json({ error: "This user is NOT active!" });
         }
@@ -66,10 +65,8 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
     
             let tempJSON = usersJSON;
             let indxRes = tempJSON.users.findIndex((obj) => obj.passportId == passportId);
-            // console.log(indxRes);
             tempJSON.users.splice(indxRes, 1);
             tempJSON.users.push(userObj);
-            console.log(tempJSON);
             fs.writeFileSync('./users/users.json', JSON.stringify(tempJSON));
             res.status(201).json({ message: "Action performed successfully!" });
         }
@@ -91,7 +88,6 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
         return res.status(200).json({ error: "This amount of credit is not valid!" });
     }
     else {
-        console.log(result);
         if (!result[0].isActive) {
             return res.status(200).json({ error: "This user is NOT active!" });
         }
@@ -105,10 +101,51 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
     
             let tempJSON = usersJSON;
             let indxRes = tempJSON.users.findIndex((obj) => obj.passportId == passportId);
-            // console.log(indxRes);
             tempJSON.users.splice(indxRes, 1);
             tempJSON.users.push(userObj);
-            console.log(tempJSON);
+            fs.writeFileSync('./users/users.json', JSON.stringify(tempJSON));
+            res.status(201).json({ message: "Action performed successfully!" });
+        }
+    }
+})
+.put('/withdraw', (req, res) => {
+    console.log(req.body);
+    const { passportId, amount } = req.body;
+
+    let result = usersJSON.users.filter( user => user.passportId == passportId);
+
+    if (!passportId) {
+        return res.status(200).json({ error: "Please enter passport id!" });
+    }
+    else if (result.length === 0) {
+        return res.status(200).json({ error: "No such passport id!" });
+    }
+    else if (isPositiveInt(amount) === false) {
+        return res.status(200).json({ error: "This amount of credit is not valid!" });
+    }
+    else {
+        if (!result[0].isActive) {
+            return res.status(200).json({ error: "This user is NOT active!" });
+        }
+        else if (result[0].credit === 0 && result[0].cash === 0) {
+            //tell the user to update credit!
+            return res.status(200).json({ error: "This user does NOT have enough money!" });
+        }
+        else if (result[0].cash - amount < (-1) * result[0].credit) {
+            return res.status(200).json({ error: "This user does NOT have enough money!" });
+        }
+        else {
+            const userObj = {
+                passportId,
+                cash: result[0].cash - amount,
+                credit: result[0].credit,
+                isActive: result[0].isActive
+            }
+    
+            let tempJSON = usersJSON;
+            let indxRes = tempJSON.users.findIndex((obj) => obj.passportId == passportId);
+            tempJSON.users.splice(indxRes, 1);
+            tempJSON.users.push(userObj);
             fs.writeFileSync('./users/users.json', JSON.stringify(tempJSON));
             res.status(201).json({ message: "Action performed successfully!" });
         }
