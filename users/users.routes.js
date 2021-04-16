@@ -127,10 +127,6 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
         if (!result[0].isActive) {
             return res.status(200).json({ error: "This user is NOT active!" });
         }
-        else if (result[0].credit === 0 && result[0].cash === 0) {
-            //tell the user to update credit!
-            return res.status(200).json({ error: "This user does NOT have enough money!" });
-        }
         else if (result[0].cash - amount < (-1) * result[0].credit) {
             return res.status(200).json({ error: "This user does NOT have enough money!" });
         }
@@ -174,10 +170,6 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
         if (!resultSrc[0].isActive || !resultDst[0].isActive) {
             return res.status(200).json({ error: "One of the users is NOT active!" });
         }
-        else if ((resultSrc[0].credit === 0 && resultSrc[0].cash === 0) || (resultDst[0].credit === 0 && resultDst[0].cash === 0)) {
-            //tell the user to update credit!
-            return res.status(200).json({ error: "One of the users does NOT have enough money!" });
-        }
         else if (resultSrc[0].cash - amount < (-1) * resultSrc[0].credit) {
             return res.status(200).json({ error: "The source user does NOT have enough money!" });
         }
@@ -209,6 +201,6 @@ router.get('/', (req,res) => res.status(200).json({ users: usersJSON.users }))
             res.status(201).json({ message: "Action performed successfully!" });
         }
     }
-})
+});
 
 module.exports = router;
