@@ -10,4 +10,4 @@ app.use(bodyParser.json());
 
 app.use('/api/bank', usersRoutes);
 
-app.listen(PORT, () => console.log(`The server starts at port: ${PORT}`));
+app.listen(process.env.PORT || PORT, () => console.log(`The server starts at port: ${PORT}`));
